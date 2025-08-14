@@ -1,5 +1,7 @@
 const mongoose = require("mongoose")
 const isEmail = require('validator/lib/isEmail')
+const jwt = require("jsonwebtoken")
+const bcrypt = require("bcrypt")
 
 const userSchema = new mongoose.Schema({
        firstName:{
@@ -27,6 +29,7 @@ const userSchema = new mongoose.Schema({
        },
        age:{
           type:Number,
+          min:18,
           max:80
        },
        gender:{
@@ -40,7 +43,7 @@ const userSchema = new mongoose.Schema({
        avatarUrl:{
           type: String
        },
-       about:{
+       about:{ 
          type :String
        },
        skills:{
@@ -48,6 +51,25 @@ const userSchema = new mongoose.Schema({
        }
 
 },{timestamps:true})
+
+userSchema.methods.isPasswordCorrect = async function(password){
+         const user = this
+         const hashPassord = user.password
+         return await bcrypt.compare(password,hashPassord)
+
+}
+
+userSchema.methods.generateAccessToken = async function (){
+     const user = this
+     const accessToken  = await jwt.sign({_id:user._id},process.env.JWT_SECRET,{expiresIn:process.env.ACCESS_TOKEN_EXPIRY} )   
+     return accessToken      
+}
+
+// userSchema.methods.generateRefreshToken = async function(){
+//      const user = this
+//      const refreshToken = await jwt.sign({id:user._id} ,process.env.JWT_SECRET,{expiresIn:process.env.REFRESH_TOKEN_EXPIRY})
+//      return refreshToken
+// }
 
 const User = mongoose.model("User",userSchema)
 

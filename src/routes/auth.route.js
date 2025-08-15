@@ -6,9 +6,11 @@ const { signup,
         changePassword
        } = require("../controllers/userAuth.controller")
 const { verifyJwt } = require("../middlewares/auth")
+const upload = require("../middlewares/multer")
+
 const authRouter = express.Router()
 
-authRouter.post("/signup",signup)
+authRouter.post("/signup",upload.single("avatar"),signup)
 authRouter.post("/login",login)
 authRouter.post("/logout",logout)
 authRouter.post("/password/forgot",forgotPassword)

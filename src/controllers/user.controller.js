@@ -2,7 +2,7 @@ const ConnectionRequest = require("../models/connectionRequest.model")
 const ApiResponse = require("../utils/ApiResponse")
 const {validateMongodbId} = require("../utils/validator")
 const ApiError = require("../utils/ApiError")
-const User =require("../models/user.model")
+const User = require("../models/user.model")
 
 const connectionRequestSend = async function(req,res){
        try {
@@ -42,19 +42,19 @@ const connectionRequestSend = async function(req,res){
       }
    }
    
-   const connectionRequestReview = async function(req,res){
+const connectionRequestReview = async function(req,res){
        try {
                 const {status,requestId} = req.params
-                const userId = req.user._id
+                const loggedInuserId = req.user._id
                 validateMongodbId(requestId)
-                const allowedStatus =  ["reject","accept"]
+                const allowedStatus =  ["rejected","accepted"]
                 if(!allowedStatus.includes(status)){
                    throw new ApiError(400,"invalid status")    
                   }
                   const request = await ConnectionRequest.findOneAndUpdate(
                      {
                      _id:requestId,
-                     toUserId:userId,
+                     toUserId:loggedInuserId,
                      status:"interested"
                     },
                      {$set:{status:status}},
@@ -65,7 +65,7 @@ const connectionRequestSend = async function(req,res){
                 }  
                  res
                  .status(200)
-                 .json(new ApiResponse(200,request,`request ${status}ed`)) 
+                 .json(new ApiResponse(200,request,`request ${status}`)) 
                 
         } 
        catch (error) {
@@ -77,19 +77,27 @@ const connectionRequestSend = async function(req,res){
 
 const getRequests = async function(req,res){
         try {
-              // loggedin User id
-               const userId = req.user._id 
+              // loggedin User id 
+               const loggedInuserId = req.user._id 
+               
+             // using populate and ref
+            //   const allRequests = await ConnectionRequest.find({toUserId:loggedInuserId,status:"interested"})
+            //                       .populate("fromUserId","firstName lastName age gender avatar")
+            //                       .populate("toUserId" ,"firstName lastName age gender avatar")
+
+            // using aggregation pipeline (it is used for complex query)
                const allRequests = await ConnectionRequest.aggregate([
-                   {$match:{toUserId:userId,status:"interested"}},
+                   {$match:{toUserId:loggedInuserId,status:"interested"}},
                    {
                      $lookup:{
                         from:"users",
                         localField:"fromUserId",
                         foreignField:"_id",
-                        as:"fromUserData",
+                        as:"fromUserData",  
                         pipeline:[
                          {
                            $project:{
+                              "_id":0,
                               "password":0,
                               "skills":0,
                               "about":0
@@ -108,6 +116,7 @@ const getRequests = async function(req,res){
                         pipeline:[
                          {
                            $project:{
+                              "_id":0,
                               "password":0,
                               "about":0,
                               "skills":0
@@ -118,6 +127,7 @@ const getRequests = async function(req,res){
                    },
                    {
                      $project:{
+                        "_id":0,
                         "fromUserId":0,
                         "toUserId":0,
                      }
@@ -140,26 +150,91 @@ const getRequests = async function(req,res){
 const getAllConnections = async function(req,res){
           try {
                 const userId = req.user._id
-                const allCollections = await ConnectionRequest.find({
+                const allConnections = await ConnectionRequest.find({
                   $or:[
                         {fromUserId:userId,status:"accepted"},
                         {toUserId:userId,status:"accepted"}
                      ] 
                 })
+                .populate("fromUserId","firstName lastName age gender avatar")
+                .populate("toUserId","firstName lastName age gender avatar")
+
+                if(!allConnections || allConnections.length === 0) {
+                   return res.status(404).json(new ApiError(404,"No connections found"))
+                } 
+
+                const connections= allConnections.map((connection) => {
+      
+                   if( connection.fromUserId._id.toString()===userId.toString()){
+                      return connection.toUserId
+                   }
+                   return connection.fromUserId
+                })
+         
+
                 res
-                .status(200)
-                .json(200,allCollections,"all request fetched successfully")
+                .status(200) 
+                .json(new ApiResponse(200,connections,"all request fetched successfully"))
           } catch (error) {
                res
-               .status(error?.statuCode)
+               .status(error?.statuCode || 500)
                .json(new ApiError(error.statusCode || 500,{},error.message || "server internal error "))
           }
+}
+
+const getFeeds = async function(req,res){
+
+   try {
+       // User should see all the user cards expect
+       // 0. his own card
+       // 1.his connections
+       // 2.ignored people 
+       // 3.already sent the connection request
+      const loggedUserId = req.user._id
+      const page = req.query.page ? parseInt(req.query.page) : 1
+      let limit = req.query.limit ? parseInt(req.query.limit) : 10
+      limit = limit > 50 ? 50 : limit // limit to 50
+      const skip = (page - 1) * limit
+
+      // find all connection requests (sent + received)
+      const connectionRequest= await ConnectionRequest.find({
+       $or: [
+            { fromUserId: loggedUserId },
+            { toUserId: loggedUserId } 
+          ]
+      }).select("fromUserId toUserId");
+      
+     // id's must be hide from feeds
+        const hideUserFromFeeds = new Set()
+        connectionRequest.forEach(req => {
+          hideUserFromFeeds.add(req.fromUserId.toString())
+          hideUserFromFeeds.add(req.toUserId.toString())
+        })
+
+         const feeds = await User.find({
+           $and: [ 
+                  { _id: { $ne: loggedUserId } },
+                  { _id: { $nin: Array.from(hideUserFromFeeds) } } 
+               ]
+          })
+         .select("-password -skills -about") // Exclude sensitive fields
+         .skip(skip)
+         .limit(limit)
+         res
+         .status(200)
+         .json(new ApiResponse(200,feeds,"all feeds fetched successfully"))
+     } catch (error) {
+         res
+         .status(error?.statuCode || 500)
+         .json(new ApiError(error.statusCode || 500,{},error.message || "server internal error "))
+     }
 }
 
 module.exports ={
      connectionRequestSend,
      connectionRequestReview,
      getRequests,
-     getAllConnections
+     getAllConnections,
+     getFeeds
 }
 

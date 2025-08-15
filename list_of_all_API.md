@@ -27,5 +27,12 @@
 - GET /api/v1/user/requests/received
 - GET /api/v1/user/connections
 - GET /api/v1/user/feed
+
+### pagination of feed
+
+/api/v1/user/feed?page=1&limit=10
+/api/v1/user/feed?page=2&limit=20
+
+
 - POST /api/v1/user/request/revert --optional
 - POST /api/v1/user/connection/cancel --optional

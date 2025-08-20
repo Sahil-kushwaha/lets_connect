@@ -76,6 +76,7 @@ const updateUserAvatar = async (req, res) => {
 
 const deleteProfile = async(req,res)=>{
       const userId = req.user._id
+      //TODO : first verify with by using its password
       try {
             const deletedUser = await User.findByIdAndDelete(userId);
              const response = await cloudinaryDeletFile(extractPublicId(deletedUser.avatarUrl))

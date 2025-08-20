@@ -52,17 +52,14 @@ const login = async(req,res)=>{
             const isMatch = await user.isPasswordCorrect(password)
             if(!isMatch) throw new ApiError(401 , "Invalid credentials")
           
-           const authToken= await user.generateAccessToken()
-
-           const{firstName ,lastName}  = user          
+           const authToken= await user.generateAccessToken()    
            res
            .status(200)
            .cookie("token",authToken,{httpOnly:true})
            .json(new ApiResponse(200,
             {
-             firstName,
-             lastName,
-             emailId
+             ...user._doc,
+             password:""
             },"User loged in successfully"))
             
       } 
@@ -75,7 +72,9 @@ const login = async(req,res)=>{
 const logout = async(req,res)=>{
 
             //delete cookie
-            res.clearCookie("token",{httpOnly:true})
+            res.clearCookie("token",
+                  {httpOnly:true}
+            )
             res
             .status(200)
             .json(new ApiResponse(200,{},"User logout Successfully"))

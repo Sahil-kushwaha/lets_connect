@@ -2,6 +2,7 @@ const express = require('express')
 require("dotenv").config()
 const connectDB = require("./config/dbconfig")
 const cookiesParser = require("cookie-parser")
+const cors = require("cors")
 const app = express()
 const PORT = 3000
 
@@ -12,7 +13,12 @@ const userRouter = require('./routes/user.route')
 app.use(express.json())
 app.use(cookiesParser())
 app.use(express.static("public"))
-
+app.use(express.urlencoded()) 
+const corsOption ={
+    origin:"http://localhost:5173",
+    credentials: true, 
+}
+app.use(cors(corsOption))
 
 app.use("/api/v1/auth",authRouter)
 app.use("/api/v1/profile",profileRouter)

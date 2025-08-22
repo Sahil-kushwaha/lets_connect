@@ -33,7 +33,7 @@ const updateProfile = async(req,res)=>{
                   {
                         returnDocument:"after",
                         runValidators:true
-                  })
+                  }).select("-password")
       
             res.status(200).json(new ApiResponse(200 , updatedUser,"Profile updated successfully"))
              

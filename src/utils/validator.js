@@ -36,7 +36,7 @@ const validateLoginData  = (req)=>{
         const  data = req.body;
         const ALLOWed_UPDATE = ["firstName","lastName","photoUrl" ,"gender","skills","about","age", ]
         const isUpdateAllowed = Object.keys(data).every(item=>ALLOWed_UPDATE.includes(item))
-        if(!isUpdateAllowed) throw new ApiError(400,"This update not allowed") 
+        if(!isUpdateAllowed) throw new ApiError(400,`Only ${ALLOWed_UPDATE} \n is allowed to upadate `) 
 
         const isEmptyInput =  Object.keys(req.body).some((item)=>item.trim()==="")
         if(isEmptyInput){

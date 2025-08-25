@@ -50,7 +50,7 @@ const login = async(req,res)=>{
                   throw new ApiError(404 , "user doesn't exist")
             } 
             const isMatch = await user.isPasswordCorrect(password)
-            if(!isMatch) throw new ApiError(401 , "Invalid credentials")
+            if(!isMatch) throw new ApiError(400 , "Invalid credentials")
           
            const authToken= await user.generateAccessToken()    
            res

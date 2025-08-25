@@ -81,59 +81,55 @@ const getRequests = async function(req,res){
                const loggedInuserId = req.user._id 
                
              // using populate and ref
-            //   const allRequests = await ConnectionRequest.find({toUserId:loggedInuserId,status:"interested"})
-            //                       .populate("fromUserId","firstName lastName age gender avatar")
-            //                       .populate("toUserId" ,"firstName lastName age gender avatar")
+              const allRequests = await ConnectionRequest.find({toUserId:loggedInuserId,status:"interested"})
+                                  .populate("fromUserId","firstName lastName age gender avatarUrl skills about")
+                                  .populate("toUserId" ,"firstName lastName age gender avatarUrl skills about")
 
             // using aggregation pipeline (it is used for complex query)
-               const allRequests = await ConnectionRequest.aggregate([
-                   {$match:{toUserId:loggedInuserId,status:"interested"}},
-                   {
-                     $lookup:{
-                        from:"users",
-                        localField:"fromUserId",
-                        foreignField:"_id",
-                        as:"fromUserData",  
-                        pipeline:[
-                         {
-                           $project:{
-                              "_id":0,
-                              "password":0,
-                              "skills":0,
-                              "about":0
-                              
-                           }
-                        }
-                        ]
-                     },
-                   },
-                   {
-                      $lookup:{
-                        from:"users",
-                        localField:"toUserId",
-                        foreignField:"_id",
-                        as:"toUserData",
-                        pipeline:[
-                         {
-                           $project:{
-                              "_id":0,
-                              "password":0,
-                              "about":0,
-                              "skills":0
-                           }
-                        }
-                        ]
-                     }
-                   },
-                   {
-                     $project:{
-                        "_id":0,
-                        "fromUserId":0,
-                        "toUserId":0,
-                     }
-                   }
+               // const allRequests = await ConnectionRequest.aggregate([
+               //     {$match:{toUserId:loggedInuserId,status:"interested"}},
+               //     {
+               //       $lookup:{
+               //          from:"users",
+               //          localField:"fromUserId",
+               //          foreignField:"_id",
+               //          as:"fromUserData",  
+               //          pipeline:[
+               //           {
+               //             $project:{
+               //                "_id":0,
+               //                "password":0,
+               //                   
+               //             }
+               //          }
+               //          ]
+               //       },
+               //     },
+               //     {
+               //        $lookup:{
+               //          from:"users",
+               //          localField:"toUserId",
+               //          foreignField:"_id",
+               //          as:"toUserData",
+               //          pipeline:[
+               //           {
+               //             $project:{
+               //                "_id":0,
+               //                "password":0,
+               //             }
+               //          }
+               //          ]
+               //       }
+               //     },
+               //     {
+               //       $project:{
+               //          "_id":0,
+               //          "fromUserId":0,
+               //          "toUserId":0,
+               //       }
+               //     }
                    
-                  ])
+               //    ])
                
                res
                .status(200)
@@ -156,11 +152,11 @@ const getAllConnections = async function(req,res){
                         {toUserId:userId,status:"accepted"}
                      ] 
                 })
-                .populate("fromUserId","firstName lastName age gender avatar")
-                .populate("toUserId","firstName lastName age gender avatar")
+                .populate("fromUserId","firstName lastName age gender avatarUrl about")
+                .populate("toUserId","firstName lastName age gender avatarUrl about")
 
                 if(!allConnections || allConnections.length === 0) {
-                   return res.status(404).json(new ApiError(404,"No connections found"))
+                   return res.status(200).json(new ApiResponse(200,[],"No connections found"))
                 } 
 
                 const connections= allConnections.map((connection) => {

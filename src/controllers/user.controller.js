@@ -11,6 +11,10 @@ const connectionRequestSend = async function(req,res){
              const toUserId = req.params.userId
              const fromUserId = req.user._id
              validateMongodbId(toUserId)
+               const allowedStatus =  ["ignored","interested"]
+                if(!allowedStatus.includes(status)){
+                   throw new ApiError(400,"invalid status")    
+                  }
              // check already existance of request
              const request = await ConnectionRequest.findOne({$or:[
                {
@@ -195,8 +199,8 @@ const getFeeds = async function(req,res){
       // find all connection requests (sent + received)
       const connectionRequest= await ConnectionRequest.find({
        $or: [
-            { fromUserId: loggedUserId },
-            { toUserId: loggedUserId } 
+            { fromUserId: loggedUserId },  // request send by loggedin user (sent)
+            { toUserId: loggedUserId }   // some send request to loggedin user (received)
           ]
       }).select("fromUserId toUserId");
       
@@ -213,7 +217,7 @@ const getFeeds = async function(req,res){
                   { _id: { $nin: Array.from(hideUserFromFeeds) } } 
                ]
           })
-         .select("-password -skills -about") // Exclude sensitive fields
+         .select("-password") // Exclude sensitive fields
          .skip(skip)
          .limit(limit)
          res

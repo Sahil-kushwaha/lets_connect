@@ -44,7 +44,7 @@ const cloudinaryDeletFile=async (publicId)=>{
                 }   
                 
                catch(error){
-                    console,log("couldinary service::Error:",error.message)
+                    console.log("couldinary service::Error:",error.message)
                     return null;
                } 
 }

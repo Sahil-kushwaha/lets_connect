@@ -10,7 +10,7 @@ const upload = require("../middlewares/multer")
 
 const authRouter = express.Router()
 
-authRouter.post("/signup",upload.single("avatar"),signup)
+authRouter.post("/signup",signup)
 authRouter.post("/login",login)
 authRouter.post("/logout",logout)
 authRouter.post("/password/forgot",forgotPassword)

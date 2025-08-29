@@ -1,40 +1,36 @@
 const User = require("../models/user.model")
 const ApiError = require("../utils/ApiError")
 const ApiResponse = require("../utils/ApiResponse")
-const { uploadImage } = require("../utils/cloudinary")
 const {validateSignupData, validateLoginData ,validatePassword} = require("../utils/validator")
 const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
 
 
 // signup handler
 const signup = async (req, res)=>{ 
-
       try {
             // validation of data
             validateSignupData(req)
-            // check if avatar is uploaded
-            if (!req.file?.path) {
-                  throw new ApiError(400, "Avatar is required")
-            }
             // check is user alredy exist or not
-            const user = await User.findOne({emailId:req.emailId})
-            if(user) throw new ApiError(400,"User already exist") 
-                  //encypt password
+            const isUserExit= await User.findOne({emailId:req.body.emailId})
+            if(isUserExit) throw new ApiError(400,"User already exist") 
+            //encypt password
             const plainPasswrod  =  req.body.password
             const hashPassord = await bcrypt.hash(plainPasswrod ,10)
             const data = req.body
-            const avatarLocalPath = req.file?.path
-            const avatarUrl = await uploadImage(avatarLocalPath)
-            if(!avatarUrl?.url){
-                  throw new ApiError(400, "Error uploading avatar")
-            }
             // create the instance of user model
-            const newUser = new User({...data,password:hashPassord,avatarUrl:avatarUrl.url})
-            await newUser.save()
-            res.status(201).json(new ApiResponse(201,{...newUser._doc,password:null},"User added successfully"))
+            const newUser = new User({...data,password:hashPassord})
+            const user = await newUser.save()
+            const authToken =  await user.generateAccessToken()
+            res
+            .status(201)
+            .cookie("token",authToken,{httpOnly:true})
+            .json(new ApiResponse(201,{...user._doc,password:null},"User added successfully"))
 
       } catch (error) {
-            res.status(error.statusCode || 400).json(new ApiError(error.statusCode || 400, error.message))
+            res
+            .status(error.statusCode || 400)
+            .json(new ApiError(error.statusCode || 400, error.message || "something went wrong"))
       }
       
 }

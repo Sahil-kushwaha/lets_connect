@@ -1,5 +1,5 @@
 const express = require('express')
-require("dotenv").config()
+require("dotenv").config({path:`.env.${process.env.NODE_EVN}`})
 const connectDB = require("./config/dbconfig")
 const cookiesParser = require("cookie-parser")
 const cors = require("cors")
@@ -15,7 +15,7 @@ app.use(cookiesParser())
 app.use(express.static("public"))
 app.use(express.urlencoded()) 
 const corsOption ={
-    origin:"http://localhost:5173",
+    origin: process.env.ORIGIN,
     credentials: true, 
 }
 app.use(cors(corsOption))
@@ -27,7 +27,7 @@ app.use("/api/v1/user",userRouter)
 connectDB()
 .then(()=>{
        console.log("DB connection established")
-       app.listen(PORT,()=>{
+       app.listen(process.env.PORT || PORT,()=>{
               console.log(`Server is  listening on port: ${PORT}`)
        })
 

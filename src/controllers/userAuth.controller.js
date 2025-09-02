@@ -24,7 +24,7 @@ const signup = async (req, res)=>{
             const authToken =  await user.generateAccessToken()
             res
             .status(201)
-            .cookie("token",authToken,{httpOnly:true})
+            .cookie("token",authToken,{httpOnly:true,secure:`${process.env.NODE_ENV==="development"?false:true}`})
             .json(new ApiResponse(201,{...user._doc,password:null},"User added successfully"))
 
       } catch (error) {
@@ -51,7 +51,7 @@ const login = async(req,res)=>{
            const authToken= await user.generateAccessToken()    
            res
            .status(200)
-           .cookie("token",authToken,{httpOnly:true})
+           .cookie("token",authToken,{httpOnly:true,secure:`${process.env.NODE_ENV==="development"?false:true}`})
            .json(new ApiResponse(200,
             {
              ...user._doc,

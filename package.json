@@ -4,8 +4,8 @@
   "description": "tinder like platform but for developer connection",
   "main": "index.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "start": "cross-env NODE_EVN=production node src/app.js",
+    "dev": "cross-env NODE_EVN=development nodemon src/app.js"
   },
   "keywords": [
     "nodejs",
@@ -19,6 +19,7 @@
     "cloudinary-build-url": "^0.2.4",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "cross-env": "^10.0.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",

@@ -1,0 +1,94 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Connection Request</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .header {
+            background-color: #007bff; /* A nice blue color */
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+            color: #333333;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        .message-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+        .button-container {
+            text-align: center;
+            padding-top: 20px;
+        }
+        .button {
+            background-color: #28a745;
+            color: #ffffff;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .footer {
+            background-color: #f4f7f6;
+            color: #888888;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>New Connection Request 🤝</h1>
+        </div>
+        <div class="content">
+            <p>Hello {{recipientName}},</p>
+            <p>
+                <strong>{{senderName}}</strong> has sent you a connection request on <strong>letconnect.in</strong>.
+            </p>
+
+            <div class="button-container">
+                <a href="https://letconnect.in/requests" class="button">View and Accept Request</a>
+            </div>
+            <p style="text-align:center; margin-top: 30px; font-size: 14px; color: #666;">
+                If you do not know this person, you can safely ignore this email.
+            </p>
+        </div>
+    </div>
+    <div class="footer">
+        <p>You received this because a member of letconnect.in sent you a request.</p>
+        <p>&copy; 2025 letconnect.in. All Rights Reserved.<br>Sultanpur, India</p>
+        <a href="https://letconnect.in/email-subscription/preference?request-email=false">Unsubscribe</a> // TODO make it functional
+    </div> 
+</body>
+</html>

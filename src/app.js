@@ -9,14 +9,14 @@ const PORT = 3000
 const authRouter = require("./routes/auth.route")
 const profileRouter = require('./routes/profile.route')
 const userRouter = require('./routes/user.route')
-
+require("./utils/cronJob")
 app.use(express.json())
 app.use(cookiesParser())
 app.use(express.static("public"))
 app.use(express.urlencoded()) 
 const corsOption ={
-    origin: process.env.ORIGIN,
-    credentials: true, 
+       origin: process.env.ORIGIN,
+       credentials: true, 
 }
 app.use(cors(corsOption))
 
@@ -30,7 +30,7 @@ connectDB()
        app.listen(process.env.PORT || PORT,()=>{
               console.log(`Server is  listening on port: ${PORT}`)
        })
-
+       
 })
 .catch((e)=>console.log("Error occured in DB connection: "))
 

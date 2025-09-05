@@ -13,8 +13,12 @@ const sendEmail = async (recipientEmail,emailType,data) => {
     // 1. Configure subject and template path based on email type
     switch (emailType) {
         case "connectionRequest":
-            subject = `New Connection Request from ${data.senderName}`;
+            subject = `New Connection Request`;
             templatePath = path.join(__dirname,".." ,"templates", "connectionRequest.html");
+            break;
+        case "connectionRequestRemainder":
+            subject = `Remainder!! Pending Connection Requests`;
+            templatePath = path.join(__dirname,".." ,"templates", "connectionRequestRemainder.html");
             break;
             
         default:

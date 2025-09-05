@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Connection Request</title>
+    <title>Pending Connection Requests</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,7 +22,7 @@
             overflow: hidden;
         }
         .header {
-            background-color: #007bff; /* A nice blue color */
+            background-color: #0091ff; /* A nice blue color */
             color: #ffffff;
             padding: 20px;
             text-align: center;
@@ -69,26 +69,26 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>New Connection Request 🤝</h1>
+            <h1>Pending Connection Requests ⌚</h1>
         </div>
         <div class="content">
             <p>Hello {{recipientName}},</p>
             <p>
-                <strong>{{senderName}}</strong> has sent you a connection request on <strong>letconnect.in</strong>.
+                <strong>{{totalRequests}}</strong> Requests have been pending on <strong>letconnect.in</strong>.
             </p>
 
             <div class="button-container">
                 <a href="https://letconnect.in/requests" class="button">View and Accept Request</a>
             </div>
             <p style="text-align:center; margin-top: 30px; font-size: 14px; color: #666;">
-                If you do not know this person, you can safely ignore this email.
+                If you do not know these person, you can safely ignore this email.
             </p>
         </div>
     </div>
     <div class="footer">
         <p>You received this because a member of letconnect.in sent you a request.</p>
         <p>&copy; 2025 letconnect.in. All Rights Reserved.<br>Sultanpur, India</p>
-        <a href="https://letconnect.in/email-subscription/preference?request-email=false">Unsubscribe</a> 
+        <a href="https://letconnect.in/email-subscription/preference?request-email=false">Unsubscribe</a>
     </div> 
 </body>
 </html>

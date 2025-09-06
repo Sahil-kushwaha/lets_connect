@@ -1,5 +1,5 @@
 const express = require('express')
-require("dotenv").config({path:`.env.${process.env.NODE_EVN}`})
+require("dotenv").config({path:`.env.${process.env.NODE_ENV}`})
 const connectDB = require("./config/dbconfig")
 const cookiesParser = require("cookie-parser")
 const cors = require("cors")

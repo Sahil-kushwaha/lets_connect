@@ -7,6 +7,8 @@ const {
 } = require("razorpay/dist/utils/razorpay-utils");
 const { addMonths } = require("date-fns");
 const User = require("../models/user.model");
+const pino = require("pino")
+const logger = pino()
 
 const createOrder = async (req, res) => {
   try {
@@ -69,7 +71,6 @@ const createOrder = async (req, res) => {
 
 const verifyPayment = async (req, res) => {
   try {
-    console.log(req.body)
     const webhookSignature = req.get("X-Razorpay-Signature");
     
     const isValidSignature = validateWebhookSignature(
@@ -79,15 +80,14 @@ const verifyPayment = async (req, res) => {
     );
     
     if (!isValidSignature) {
-      console.log("invalid signature")
+      logger.error("invalid signature")
       throw new ApiError(400, "webhook signature is invalid");
 
     }
-    console.log("after signature")
-
+  
     // update my payment status in DB
     const paymentDetail = req.body.payload.payment.entity;
-    console.log(req.body.payload)
+    logger.info(req.body.payload)
     const payment = await Payment.findOne({ orderId: paymentDetail.order_id });
     payment.status = paymentDetail.status;
     payment.paymentId = paymentDetail.id;
@@ -115,7 +115,7 @@ const verifyPayment = async (req, res) => {
      .status(200)
      .json(new ApiResponse(200 ,{},"webhook received successfully"))
   } catch (error) {
-    console.log(error.message)
+    logger.info(error.message)
     res
       .status(error?.statusCode || 500)
       .json(

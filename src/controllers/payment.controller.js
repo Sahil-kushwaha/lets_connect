@@ -69,21 +69,23 @@ const createOrder = async (req, res) => {
 
 const verifyPayment = async (req, res) => {
   try {
-  
+    console.log(req)
     const webhookSignature = req.get("X-Razorpay-Signature");
-
+    
     const isValidSignature = validateWebhookSignature(
       JSON.stringify(req.body),
       webhookSignature,
       // process.env.RAZORPAY_WEBHOOK_SECRET
     );
-
+    
     if (!isValidSignature) {
       throw new ApiError(400, "webhook signature is invalid");
     }
+    console.log("after signature")
 
     // update my payment status in DB
     const paymentDetail = req.body.payload.payment.entity;
+    console.log(req.body.payload)
     const payment = await Payment.findOne({ orderId: paymentDetail.order_id });
     payment.status = paymentDetail.status;
     payment.paymentId = paymentDetail.id;

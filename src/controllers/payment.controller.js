@@ -75,7 +75,7 @@ const verifyPayment = async (req, res) => {
     const isValidSignature = validateWebhookSignature(
       JSON.stringify(req.body),
       webhookSignature,
-      // process.env.RAZORPAY_WEBHOOK_SECRET
+      process.env.RAZORPAY_WEBHOOK_SECRET
     );
     
     if (!isValidSignature) {

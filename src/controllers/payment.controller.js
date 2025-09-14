@@ -7,8 +7,8 @@ const {
 } = require("razorpay/dist/utils/razorpay-utils");
 const { addMonths } = require("date-fns");
 const User = require("../models/user.model");
-const pino = require("pino")
-const logger = pino()
+const pino = require("pino");
+const logger = pino();
 
 const createOrder = async (req, res) => {
   try {
@@ -69,25 +69,24 @@ const createOrder = async (req, res) => {
   }
 };
 
-const verifyPayment = async (req, res) => {
+const webhookHanlder = async (req, res) => {
   try {
     const webhookSignature = req.get("X-Razorpay-Signature");
-    
+
     const isValidSignature = validateWebhookSignature(
       JSON.stringify(req.body),
       webhookSignature,
       process.env.RAZORPAY_WEBHOOK_SECRET
     );
-    
-    if (!isValidSignature) {
-      logger.error("invalid signature")
-      throw new ApiError(400, "webhook signature is invalid");
 
+    if (!isValidSignature) {
+      logger.error("invalid signature");
+      throw new ApiError(400, "webhook signature is invalid");
     }
-  
+
     // update my payment status in DB
     const paymentDetail = req.body.payload.payment.entity;
-    logger.info(req.body.payload)
+    logger.info(req.body.payload);
     const payment = await Payment.findOne({ orderId: paymentDetail.order_id });
     payment.status = paymentDetail.status;
     payment.paymentId = paymentDetail.id;
@@ -95,7 +94,8 @@ const verifyPayment = async (req, res) => {
     const unixTimestamp = paymentDetail.created_at;
     const millisecondTimestamp = unixTimestamp * 1000;
     const paymentDate = new Date(millisecondTimestamp);
-    const membershipValidity = payment.notes.membershipDuration === "Monthly" ? 1 : 12;
+    const membershipValidity =
+      payment.notes.membershipDuration === "Monthly" ? 1 : 12;
     const membershipExpiry = addMonths(paymentDate, membershipValidity);
     payment.notes.membershipExpiry = membershipExpiry;
 
@@ -106,16 +106,16 @@ const verifyPayment = async (req, res) => {
       const user = await User.findOne({ _id: payment.userId });
       user.isPremium = true;
       user.membershipType = paymentDetail.notes.membershipType;
-      await user.save()
+      await user.save();
     }
     if (req.body.event === "payment.failed") {
     }
 
-     res
-     .status(200)
-     .json(new ApiResponse(200 ,{},"webhook received successfully"))
+    res
+      .status(200)
+      .json(new ApiResponse(200, {}, "webhook received successfully"));
   } catch (error) {
-    logger.info(error.message)
+    logger.info(error.message);
     res
       .status(error?.statusCode || 500)
       .json(
@@ -127,7 +127,44 @@ const verifyPayment = async (req, res) => {
   }
 };
 
+const verifyPayment = async (req, res) => {
+  try {
+    const { paymentId } = req.body;
+    const payment = await Payment.findOne({ paymentId: paymentId })
+      .select("-_id")
+      .populate("userId", "isPremium membershipType");
+   
+    if (payment.status === "captured") {
+      res
+        .status(200)
+        .json(new ApiResponse(200, payment, "payment successfully done"));
+       return;
+    }
+    if (payment.status === "failed") {
+      res
+       .status(500)
+       .json(new ApiResponse(500, payment, "payment failed"));
+       return;
+    } 
+    else {
+      res
+        .status(200)
+        .json(new ApiResponse(200,payment,"payment response other than successfully or failed") );
+        return;
+    }
+  } catch (error) {
+    res
+      .status(error?.statusCode || 500)
+      .json( new ApiError(
+          error?.statusCode || 500,
+          error.message || "something went wrong on verifying payment"
+        )
+      );
+   }
+};
+
 module.exports = {
   createOrder,
-  verifyPayment
+  webhookHanlder,
+  verifyPayment,
 };

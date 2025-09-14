@@ -54,7 +54,6 @@ const paymentSchema = new  mongoose.Schema({
 
 },{timestamps:true})
 
-   paymentSchema.index({orderId:1})
+   paymentSchema.index({orderId:1,paymentId:1})
    const Payment =  mongoose.model("Payment",paymentSchema)
-
    module.exports=Payment

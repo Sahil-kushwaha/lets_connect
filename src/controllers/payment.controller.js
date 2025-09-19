@@ -129,17 +129,24 @@ const webhookHanlder = async (req, res) => {
 
 const verifyPayment = async (req, res) => {
   try {
-    const { paymentId } = req.body;
-    const payment = await Payment.findOne({ paymentId: paymentId })
+    const { paymentId,orderId } = req.body;
+
+    const payment = await Payment.findOne({ orderId: orderId })
       .select("-_id")
-      .populate("userId", "isPremium membershipType");
-   
+      .populate("userId", "isPremium membershipType")
+    if(!payment) throw new ApiError(500 ,"payment order has not been created successfully")
     if (payment.status === "captured") {
       res
         .status(200)
         .json(new ApiResponse(200, payment, "payment successfully done"));
        return;
     }
+     if (payment.status === "created") {
+      res
+       .status(500)
+       .json(new ApiResponse(500, payment, "payment has not been captured yet"));
+       return;
+    } 
     if (payment.status === "failed") {
       res
        .status(500)

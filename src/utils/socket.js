@@ -12,6 +12,7 @@ const initializeSocketServer = (httpServer) => {
       origin: process.env.ORIGIN,
       credentials: true,
     },
+    path: "/api/socket.io/",
   });
 
   //middware for authenticate socket

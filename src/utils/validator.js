@@ -7,8 +7,8 @@ const validateSignupData = (req)=>{
       if ([firstName, emailId, password].some((field) => field?.trim() === "")) {
           throw new ApiError(400, "fields are required");
       }
- 
-      if(!validator.isEmail(emailId)){
+      const emailValidator = /^[\w+%.-]+@[\w^_.-]+\.[a-zA-Z]{2,}$/
+      if(!emailValidator.test(emailId)){
          throw new ApiError(400,"Enter valid Email")
          
         }
@@ -16,7 +16,7 @@ const validateSignupData = (req)=>{
         throw new ApiError(400,"Enter strong password")
             
       }
-
+ 
 }
 
 const validateLoginData  = (req)=>{

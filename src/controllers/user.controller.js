@@ -40,22 +40,22 @@ const connectionRequestSend = async function(req,res){
            .populate("fromUserId", "firstName lastName")
            .populate("toUserId", "firstName lastName emailId");
 
-            // send Email to the requested user
-            if(populatedRequest.status!="ignored")
-               { 
-                  const senderName = populatedRequest.fromUserId.firstName +" "+ (populatedRequest.fromUserId?.lastName ??"")
-                  const recipientName = populatedRequest.toUserId.firstName +" "+populatedRequest.toUserId?.lastName ??""
-                  const emailRes= await sendEmail(
-                  "manishdwivedi2408@gmail.com", //SES testing (sandbox email)
-                  "connectionRequest",
-                  {
-                     senderName,
-                     recipientName,
-                     recipientEmailId:toUserId.emailId
-                  }
-                  )
-                 console.log(emailRes) 
-               }
+            // send Email to the requested user Todo: SES email service (sandbox email) instead of it use other email service
+            // if(populatedRequest.status!="ignored")
+            //    { 
+            //       const senderName = populatedRequest.fromUserId.firstName +" "+ (populatedRequest.fromUserId?.lastName ??"")
+            //       const recipientName = populatedRequest.toUserId.firstName +" "+populatedRequest.toUserId?.lastName ??""
+            //       const emailRes= await sendEmail(
+            //       "manishdwivedi2408@gmail.com", //SES testing (sandbox email)
+            //       "connectionRequest",
+            //       {
+            //          senderName,
+            //          recipientName,
+            //          recipientEmailId:toUserId.emailId
+            //       }
+            //       )
+            //      console.log(emailRes) 
+            //    }
             res
             .status(201)
             .json(new ApiResponse(201,populatedRequest,`request has been sent:${status}`))

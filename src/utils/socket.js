@@ -12,7 +12,7 @@ const initializeSocketServer = (httpServer) => {
       origin: process.env.ORIGIN,
       credentials: true,
     },
-    path: "/api/socket.io/",
+    path: process.env.NODE_ENV==="development"?"/socket.io/":"/api/socket.io/",
   });
 
   //middware for authenticate socket
@@ -89,6 +89,7 @@ const initializeSocketServer = (httpServer) => {
           });
           chat = await chat.save();
         }
+        logger.info(chat)
         const user = socket.user
         const fullName = user.firstName+" "+user.lastName
         const room = getSecretRoom({ fromUserId, toUserId });
